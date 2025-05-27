@@ -32,7 +32,7 @@ This repository contains a complete Docker setup for LiteLLM proxy with PostgreS
 ### Prerequisites
 
 - Docker and Docker Compose installed
-- The API keys are already configured in the environment file
+- **You need to configure your own API keys** (see Setup section below)
 
 ### 1. Clone and Setup
 
@@ -41,7 +41,9 @@ git clone <your-repo-url>
 cd LiteLLLMProxy
 ```
 
-### 2. Configure Environment
+### 2. Configure Environment and API Keys
+
+**IMPORTANT**: You must set up your own API keys before using this proxy.
 
 Copy the example environment file:
 
@@ -49,11 +51,26 @@ Copy the example environment file:
 cp env.example .env
 ```
 
-The `.env` file is pre-configured with:
-- **Master Key**: `sk-?/)*oa#ixm4e(WJXbcxkWrC@2#b!>o>)`
-- **All Azure OpenAI API keys and endpoints**
-- **Anthropic Claude API key**
-- **PostgreSQL configuration**
+**Required Setup**: Edit the `.env` file and configure:
+
+1. **Master Key**: Generate a secure master key for admin access
+   ```
+   LITELLM_MASTER_KEY=your-secure-master-key-here
+   ```
+
+2. **Azure OpenAI API Keys**: Add your Azure OpenAI API keys and endpoints
+   ```
+   AZURE_API_KEY_CENTRAL_US=your-azure-api-key-here
+   AZURE_API_BASE_CENTRAL_US=your-azure-endpoint-here
+   # ... add other Azure endpoints as needed
+   ```
+
+3. **Anthropic Claude API Key**: Add your Anthropic API key
+   ```
+   ANTHROPIC_API_KEY=your-anthropic-api-key-here
+   ```
+
+4. **PostgreSQL Configuration**: The database credentials are pre-configured but you can modify them if needed
 
 ### 3. Start the Services
 
@@ -76,7 +93,7 @@ docker-compose ps
 Test the proxy health:
 
 ```bash
-curl -H "Authorization: Bearer sk-?/)*oa#ixm4e(WJXbcxkWrC@2#b!>o>)" http://localhost:4000/health
+curl -H "Authorization: Bearer YOUR_MASTER_KEY" http://localhost:4000/health
 ```
 
 ## Usage
@@ -88,7 +105,7 @@ Once running, you can make OpenAI-compatible API calls to your proxy:
 ```bash
 curl -X POST 'http://localhost:4000/chat/completions' \
   -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer sk-?/)*oa#ixm4e(WJXbcxkWrC@2#b!>o>)' \
+  -H 'Authorization: Bearer YOUR_MASTER_KEY' \
   -d '{
     "model": "gpt-4",
     "messages": [
@@ -125,7 +142,7 @@ Generate virtual keys for different users or applications:
 
 ```bash
 curl -X POST 'http://localhost:4000/key/generate' \
-  -H 'Authorization: Bearer sk-?/)*oa#ixm4e(WJXbcxkWrC@2#b!>o>)' \
+  -H 'Authorization: Bearer YOUR_MASTER_KEY' \
   -H 'Content-Type: application/json' \
   -d '{
     "models": ["gpt-4", "claude-3-5-sonnet"],
@@ -180,16 +197,16 @@ print(response.content[0].text)
 
 ### Environment Variables
 
-| Variable | Description | Value |
-|----------|-------------|-------|
-| `LITELLM_MASTER_KEY` | Master key for admin access | `sk-?/)*oa#ixm4e(WJXbcxkWrC@2#b!>o>)` |
+| Variable | Description | Setup Required |
+|----------|-------------|----------------|
+| `LITELLM_MASTER_KEY` | Master key for admin access | **YOU MUST SET THIS** |
 | `LITELLM_SALT_KEY` | Salt key for encryption | Pre-configured |
 | `POSTGRES_USER` | PostgreSQL username | `litellm_user` |
 | `POSTGRES_PASSWORD` | PostgreSQL password | `litellm_password_123` |
 | `POSTGRES_DB` | PostgreSQL database name | `litellm_db` |
-| `AZURE_API_KEY_*` | Azure OpenAI API keys | Pre-configured |
-| `AZURE_API_BASE_*` | Azure OpenAI endpoints | Pre-configured |
-| `ANTHROPIC_API_KEY` | Anthropic Claude API key | Pre-configured |
+| `AZURE_API_KEY_*` | Azure OpenAI API keys | **YOU MUST SET THESE** |
+| `AZURE_API_BASE_*` | Azure OpenAI endpoints | **YOU MUST SET THESE** |
+| `ANTHROPIC_API_KEY` | Anthropic Claude API key | **YOU MUST SET THIS** |
 
 ### Load Balancing
 
@@ -240,15 +257,16 @@ Access the admin UI at `http://localhost:4000/ui` (if enabled in configuration).
    - Verify environment variables in `.env`
 
 2. **API Key Issues**
-   - All API keys are pre-configured in the environment file
+   - **Make sure you have configured your own API keys in the `.env` file**
    - Check that environment variables are referenced correctly in `config.yaml`
+   - Verify your Azure OpenAI and Anthropic API keys are valid
 
 3. **Model Not Found**
    - Verify model configuration in `config.yaml`
    - Check that the model name matches what you're requesting
 
 4. **Permission Denied**
-   - Use the master key: `sk-?/)*oa#ixm4e(WJXbcxkWrC@2#b!>o>)`
+   - Use your configured master key from the `.env` file
    - Check that you're using the correct authorization header
 
 ### Reset Database
@@ -262,10 +280,11 @@ docker-compose up -d
 
 ## Security Considerations
 
-- The master key is pre-generated: `sk-?/)*oa#ixm4e(WJXbcxkWrC@2#b!>o>)`
-- All API keys are included in the configuration
+- **You must generate your own secure master key**
+- **You must provide your own API keys for Azure OpenAI and Anthropic**
 - Consider rotating API keys regularly in production
 - Monitor usage and set appropriate rate limits
+- Never commit API keys to version control
 
 ## Production Deployment
 
@@ -277,23 +296,48 @@ For production use:
 4. Set up monitoring and alerting
 5. Use Docker secrets or external secret management
 6. Configure backup strategies
-7. Rotate the pre-configured API keys
+7. Ensure all API keys are properly secured
 
-## API Keys and Credentials
+## API Keys Setup Guide
 
-### Master Key
-- **Key**: `sk-?/)*oa#ixm4e(WJXbcxkWrC@2#b!>o>)`
-- **Usage**: Admin access to create virtual keys and manage the proxy
+### Required API Keys
 
-### Azure OpenAI Deployments
-- **Central US**: GPT-4 (test-gpt-4) and GPT-3.5 (test-gpt-3_5)
-- **Australia East**: GPT-4 (gpt-4)
-- **East US 2**: GPT-3.5 (gpt-3-5) and Embeddings
-- **South India**: GPT-4o and GPT-4o-mini
+You need to obtain and configure the following API keys:
 
-### Anthropic Claude
-- All Claude models use the same API key
-- Supports Haiku, Sonnet, Opus, and latest versions
+#### 1. Master Key
+- Generate a secure random string (minimum 32 characters)
+- This will be used for admin access to your LiteLLM proxy
+- Example: `sk-your-secure-master-key-here-32-chars-min`
+
+#### 2. Azure OpenAI API Keys
+- Sign up for Azure OpenAI service
+- Create deployments for the models you want to use
+- Get API keys and endpoints for each deployment
+- Configure them in your `.env` file
+
+#### 3. Anthropic Claude API Key
+- Sign up for Anthropic Claude API access
+- Get your API key from the Anthropic console
+- Add it to your `.env` file
+
+### Environment File Example
+
+```env
+# Master Key (REQUIRED - Generate your own)
+LITELLM_MASTER_KEY=your-secure-master-key-here
+
+# Azure OpenAI (REQUIRED - Add your own)
+AZURE_API_KEY_CENTRAL_US=your-azure-api-key-here
+AZURE_API_BASE_CENTRAL_US=https://your-resource.openai.azure.com/
+
+# Anthropic (REQUIRED - Add your own)
+ANTHROPIC_API_KEY=your-anthropic-api-key-here
+
+# Database (Pre-configured, modify if needed)
+POSTGRES_USER=litellm_user
+POSTGRES_PASSWORD=litellm_password_123
+POSTGRES_DB=litellm_db
+```
 
 ## Support
 
