@@ -1,0 +1,56 @@
+version: "3.9"
+services:
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: litellm-proxy
+    ports:
+      - "4000:4000"
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+      - LITELLM_SALT_KEY=${LITELLM_SALT_KEY}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - STORE_MODEL_IN_DB=True
+      # Azure OpenAI Environment Variables
+      - AZURE_API_KEY_CENTRAL_US=${AZURE_API_KEY_CENTRAL_US}
+      - AZURE_API_BASE_CENTRAL_US=${AZURE_API_BASE_CENTRAL_US}
+      - AZURE_API_KEY_AUSTRALIA_EAST=${AZURE_API_KEY_AUSTRALIA_EAST}
+      - AZURE_API_BASE_AUSTRALIA_EAST=${AZURE_API_BASE_AUSTRALIA_EAST}
+      - AZURE_API_KEY_EAST_US_2=${AZURE_API_KEY_EAST_US_2}
+      - AZURE_API_BASE_EAST_US_2=${AZURE_API_BASE_EAST_US_2}
+      - AZURE_API_KEY_SOUTH_INDIA=${AZURE_API_KEY_SOUTH_INDIA}
+      - AZURE_API_BASE_SOUTH_INDIA=${AZURE_API_BASE_SOUTH_INDIA}
+      # Anthropic Environment Variables
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      # Other API Keys
+      - BING_SEARCH_API_KEY=${BING_SEARCH_API_KEY}
+      - LITELLM_LOG=${LITELLM_LOG}
+    volumes:
+      - ./config.yaml:/app/config.yaml
+    depends_on:
+      - postgres
+    networks:
+      - litellm-network
+    restart: unless-stopped
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+
+  postgres:
+    image: postgres:15
+    container_name: litellm-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - litellm-network
+    restart: unless-stopped
+
+networks:
+  litellm-network:
+    driver: bridge
+
+volumes:
+  postgres_data: 

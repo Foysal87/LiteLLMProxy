@@ -1,0 +1,152 @@
+model_list:
+  # Azure OpenAI GPT-4 Models (Load Balanced)
+  - model_name: gpt-4
+    litellm_params:
+      model: azure/test-gpt-4
+      api_base: os.environ/AZURE_API_BASE_CENTRAL_US
+      api_key: os.environ/AZURE_API_KEY_CENTRAL_US
+      api_version: "2023-09-01-preview"
+      temperature: 0.0
+      max_tokens: 1500
+      top_p: 1.0
+  
+  - model_name: gpt-4
+    litellm_params:
+      model: azure/gpt-4
+      api_base: os.environ/AZURE_API_BASE_AUSTRALIA_EAST
+      api_key: os.environ/AZURE_API_KEY_AUSTRALIA_EAST
+      api_version: "2023-09-01-preview"
+      temperature: 0.0
+      max_tokens: 1500
+      top_p: 1.0
+
+  # Azure OpenAI GPT-3.5 Models (Load Balanced)
+  - model_name: gpt-3.5-turbo
+    litellm_params:
+      model: azure/test-gpt-3_5
+      api_base: os.environ/AZURE_API_BASE_CENTRAL_US
+      api_key: os.environ/AZURE_API_KEY_CENTRAL_US
+      api_version: "2023-09-01-preview"
+      temperature: 0.0
+      max_tokens: 1500
+      top_p: 1.0
+  
+  - model_name: gpt-3.5-turbo
+    litellm_params:
+      model: azure/gpt-3-5
+      api_base: os.environ/AZURE_API_BASE_EAST_US_2
+      api_key: os.environ/AZURE_API_KEY_EAST_US_2
+      api_version: "2023-09-01-preview"
+      temperature: 0.0
+      max_tokens: 1500
+      top_p: 1.0
+
+  # Azure OpenAI GPT-4o Mini
+  - model_name: gpt-4o-mini
+    litellm_params:
+      model: azure/gpt-4o-mini
+      api_base: os.environ/AZURE_API_BASE_SOUTH_INDIA
+      api_key: os.environ/AZURE_API_KEY_SOUTH_INDIA
+      api_version: "2024-08-01-preview"
+      temperature: 0.0
+      max_tokens: 10000
+      top_p: 1.0
+
+  # Azure OpenAI GPT-4o (120K context)
+  - model_name: gpt-4o
+    litellm_params:
+      model: azure/gpt-4o
+      api_base: os.environ/AZURE_API_BASE_SOUTH_INDIA
+      api_key: os.environ/AZURE_API_KEY_SOUTH_INDIA
+      api_version: "2024-08-01-preview"
+      temperature: 0.0
+      max_tokens: 10000
+      top_p: 1.0
+
+  # Azure OpenAI Embeddings
+  - model_name: text-embedding-3-large
+    litellm_params:
+      model: azure/text-embedding-3-large
+      api_base: os.environ/AZURE_API_BASE_EAST_US_2
+      api_key: os.environ/AZURE_API_KEY_EAST_US_2
+      api_version: "2023-09-01-preview"
+
+  - model_name: text-embedding-3-small
+    litellm_params:
+      model: azure/text-embedding-3-small
+      api_base: os.environ/AZURE_API_BASE_EAST_US_2
+      api_key: os.environ/AZURE_API_KEY_EAST_US_2
+      api_version: "2023-09-01-preview"
+
+  # Anthropic Claude Models
+  - model_name: claude-3-haiku
+    litellm_params:
+      model: claude-3-haiku-20240307
+      api_key: os.environ/ANTHROPIC_API_KEY
+      temperature: 0.0
+      max_tokens: 3000
+      top_p: 1.0
+
+  - model_name: claude-3-sonnet
+    litellm_params:
+      model: claude-3-sonnet-20240229
+      api_key: os.environ/ANTHROPIC_API_KEY
+      temperature: 0.0
+      max_tokens: 3000
+      top_p: 1.0
+
+  - model_name: claude-3-opus
+    litellm_params:
+      model: claude-3-opus-20240229
+      api_key: os.environ/ANTHROPIC_API_KEY
+      temperature: 0.0
+      max_tokens: 3000
+      top_p: 1.0
+
+  - model_name: claude-3-5-sonnet
+    litellm_params:
+      model: claude-3-5-sonnet-20240620
+      api_key: os.environ/ANTHROPIC_API_KEY
+      temperature: 0.0
+      max_tokens: 7000
+      top_p: 1.0
+
+  - model_name: claude-3-7-sonnet
+    litellm_params:
+      model: claude-3-7-sonnet-20250219
+      api_key: os.environ/ANTHROPIC_API_KEY
+      temperature: 0.0
+      max_tokens: 12000
+      top_p: 1.0
+
+# General settings for the proxy
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
+  
+# LiteLLM settings
+litellm_settings:
+  set_verbose: true
+  drop_params: true
+  
+# Router settings for load balancing
+router_settings:
+  routing_strategy: simple-shuffle
+  model_group_alias: {
+    "gpt-4": "gpt-4",
+    "gpt-3.5-turbo": "gpt-3.5-turbo",
+    "gpt-4o-mini": "gpt-4o-mini",
+    "gpt-4o": "gpt-4o",
+    "claude-3-haiku": "claude-3-haiku",
+    "claude-3-sonnet": "claude-3-sonnet",
+    "claude-3-opus": "claude-3-opus",
+    "claude-3-5-sonnet": "claude-3-5-sonnet",
+    "claude-3-7-sonnet": "claude-3-7-sonnet"
+  }
+
+# Local Ollama models (uncomment and configure if using Ollama)
+# - model_name: llama3
+#   litellm_params:
+#     model: ollama/llama3
+#     api_base: http://host.docker.internal:11434
+ 
